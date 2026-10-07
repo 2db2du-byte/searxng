@@ -1,0 +1,13 @@
+#!/bin/bash
+# searxng - start/stop the laptop's private search engine.  searxng [start|stop|open|status]
+set -e
+DIR=$(dirname "$(readlink -f "$0")")
+dc() { if docker info >/dev/null 2>&1; then docker compose -f "$DIR/compose.yml" "$@"; else printf '%q ' docker compose -f "$DIR/compose.yml" "$@" | newgrp docker; fi; }
+up() { curl -s -o /dev/null -m 2 http://127.0.0.1:8888/healthz; }
+case "${1:-open}" in
+  start) up || { dc up -d >/dev/null 2>&1; for _ in $(seq 30); do up && break; sleep 1; done; } ;;
+  stop) dc stop >/dev/null 2>&1 && echo "SearXNG stopped" ;;
+  status) up && echo "SearXNG running at http://localhost:8888" || echo "SearXNG stopped" ;;
+  open) "$0" start && omarchy-launch-webapp http://localhost:8888 ;;
+  *) echo "usage: searxng [start|stop|open|status]"; exit 1 ;;
+esac

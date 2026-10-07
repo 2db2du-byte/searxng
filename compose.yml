@@ -1,0 +1,12 @@
+# SearXNG on the laptop: private search, reachable only from this laptop.
+# Always on since 2026-10-05 (Rabbid OK'd): the free AIs (Open WebUI, Octop, research, Joshua) search through it.
+name: searxng
+services:
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    restart: unless-stopped
+    ports: ["127.0.0.1:8888:8080"]
+    environment:
+      SEARXNG_BASE_URL: http://localhost:8888/
+    volumes:
+      - ${HOME}/.local/share/searxng:/etc/searxng
